@@ -14,11 +14,11 @@
 using namespace std;
 
 set<int> clientSockets;
-map<int, std::string> clientNames; 
+map<int, string> clientNames; 
 
 void handleClient(int clientSocket) {
     char buffer[1024] = {0};
-    std::string clientName = clientNames[clientSocket];
+    string clientName = clientNames[clientSocket];
     
     // Handle client messages
     while (true) {
@@ -26,10 +26,10 @@ void handleClient(int clientSocket) {
         memset(buffer, 0, sizeof(buffer));
         int bytesRead = read(clientSocket, buffer, sizeof(buffer));
         if (bytesRead <= 0) {
-            std::cerr << "Client disconnected!" << std::endl;
+            cerr << "Client disconnected!" << endl;
             break;
         }
-        std::string message = clientName + ": " + buffer;
+        string message = clientName + ": " + buffer;
         for (int socket : clientSockets) {
             if(socket != clientSocket)
                 send(socket, message.c_str(), message.size(), 0);
@@ -54,7 +54,7 @@ int main() {
     // Create socket
     serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSocket == -1) {
-        std::cerr << "Failed to create socket!" << std::endl;
+        cerr << "Failed to create socket!" << endl;
         return 1;
     }
 
@@ -65,44 +65,44 @@ int main() {
 
     // Bind
     if (bind(serverSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
-        std::cerr << "Failed to bind!" << std::endl;
+        cerr << "Failed to bind!" << endl;
         return 1;
     }
 
     // Listen
     if (listen(serverSocket, 3) < 0) {
-        std::cerr << "Failed to listen!" << std::endl;
+        cerr << "Failed to listen!" << endl;
         return 1;
     }
 
-    std::cout << "Server started. Waiting for incoming connections..." << std::endl;
+    cout << "Server started. Waiting for incoming connections..." << endl;
 
-    std::vector<std::thread> clientThreads;
+    vector<thread> clientThreads;
 
     // Accept incoming connections and handle clients
     while (true) {
         // Accept connection
         newSocket = accept(serverSocket, (struct sockaddr *)&clientAddr, &addrLen);
         if (newSocket < 0) {
-            std::cerr << "Failed to accept connection!" << std::endl;
+            cerr << "Failed to accept connection!" << endl;
             return 1;
         }
 
-        std::cout << "New client connected." << std::endl;
+        cout << "New client connected." << endl;
         char nameBuffer[1024] = {0};
         int nameBytesRead = read(newSocket, nameBuffer, sizeof(nameBuffer));
         if (nameBytesRead > 0) {
-            std::string clientName(nameBuffer);
+            string clientName(nameBuffer);
             clientNames[newSocket] = clientName;
         }
 
         clientSockets.insert(newSocket);
         // Create a new thread to handle the client
-        std::thread clientThread(handleClient, newSocket);
+        thread clientThread(handleClient, newSocket);
         clientThread.detach();  // Detach the thread so it runs independently
 
         // Store the thread in the vector
-        clientThreads.push_back(std::move(clientThread));
+        clientThreads.push_back(move(clientThread));
     }
 
     // Close server socket
