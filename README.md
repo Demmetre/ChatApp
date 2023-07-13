@@ -1,7 +1,7 @@
 # ChatApp
   console chat app written in c++
-  # Compile
+  ## Compile
   make
-  # Run
+  ## Run
   ./server
   ./client
