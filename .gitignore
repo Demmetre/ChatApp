@@ -1,6 +1,7 @@
 # Prerequisites
 *.d
-*.
+*.[bB][iI][nN]
+*.[bB][iI][nN].*
 
 # Compiled Object files
 *.slo
