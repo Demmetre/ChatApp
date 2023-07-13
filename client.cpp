@@ -54,10 +54,10 @@ int main() {
 
     cout << "Connected to the server." << endl;
     string clientName;
-    cout << "Enter your name: ";
+    cout << "Enter your name: " << endl;
     getline(cin, clientName);
     send(clientSocket, clientName.c_str(), clientName.length(), 0);
-
+    cout << "Welcome " << clientName << endl;
     // Start a thread to receive messages from the server
     thread receiveThread(receiveMessages, clientSocket);
 

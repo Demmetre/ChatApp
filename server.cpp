@@ -26,7 +26,7 @@ void handleClient(int clientSocket) {
         memset(buffer, 0, sizeof(buffer));
         int bytesRead = read(clientSocket, buffer, sizeof(buffer));
         if (bytesRead <= 0) {
-            cerr << "Client disconnected!" << endl;
+            cerr << clientName <<" disconnected!" << endl;
             break;
         }
         string message = clientName + ": " + buffer;
@@ -88,14 +88,13 @@ int main() {
             return 1;
         }
 
-        cout << "New client connected." << endl;
         char nameBuffer[1024] = {0};
         int nameBytesRead = read(newSocket, nameBuffer, sizeof(nameBuffer));
         if (nameBytesRead > 0) {
             string clientName(nameBuffer);
             clientNames[newSocket] = clientName;
         }
-
+        cout << clientNames[newSocket] <<" connected." << endl;
         clientSockets.insert(newSocket);
         // Create a new thread to handle the client
         thread clientThread(handleClient, newSocket);
