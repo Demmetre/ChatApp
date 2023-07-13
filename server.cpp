@@ -14,12 +14,39 @@
 using namespace std;
 
 set<int> clientSockets;
-map<int, string> clientNames; 
+map<int, string> clientNames;
+
+void broadcastMessage(int clientSocket, char* buffer){
+    string clientName = clientNames[clientSocket];
+    string message = clientName + ": " + buffer;
+    for (int socket : clientSockets) {
+        if(socket != clientSocket)
+            send(socket, message.c_str(), message.size(), 0);
+    }
+}
+
+void removeUser(int clientSocket){
+    if (clientSockets.find(clientSocket) != clientSockets.end()){
+        clientSockets.erase(clientSocket);
+    }
+    clientNames.erase(clientSocket);
+    close(clientSocket);
+}
+
+void showActiveUsers(string clientName){
+    string message = clientName + " disconnected.\n";
+    message += "Active Users :\n";
+    for (auto client: clientNames){
+        message += client.second + "  ";
+    }
+    for (int socket : clientSockets) {
+        send(socket, message.c_str(), message.size(), 0);
+    }
+}
 
 void handleClient(int clientSocket) {
     char buffer[1024] = {0};
     string clientName = clientNames[clientSocket];
-    
     // Handle client messages
     while (true) {
         // Read client message
@@ -29,21 +56,11 @@ void handleClient(int clientSocket) {
             cerr << clientName <<" disconnected!" << endl;
             break;
         }
-        string message = clientName + ": " + buffer;
-        for (int socket : clientSockets) {
-            if(socket != clientSocket)
-                send(socket, message.c_str(), message.size(), 0);
-        }
+        // Broadcast message to others
+        broadcastMessage(clientSocket, buffer);
     }
-
-    // Close client socket
-    close(clientSocket);
-    
-    if (clientSockets.find(clientSocket) != clientSockets.end()){
-        clientSockets.erase(clientSocket);
-    }
-    clientNames.erase(clientSocket);
-    
+    removeUser(clientSocket);
+    showActiveUsers(clientName);
 }
 
 int main() {
